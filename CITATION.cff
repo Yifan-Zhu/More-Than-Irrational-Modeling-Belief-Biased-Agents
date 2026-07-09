@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this code or find our work useful, please cite the paper below."
+title: "More Than Irrational: Modeling Belief-Biased Agents"
+authors:
+  - family-names: Zhu
+    given-names: Yifan
+  - family-names: Katt
+    given-names: Sammie
+  - family-names: Kaski
+    given-names: Samuel
+url: "https://ojs.aaai.org/index.php/AAAI/article/view/40242"
+preferred-citation:
+  type: conference-paper
+  title: "More Than Irrational: Modeling Belief-Biased Agents"
+  authors:
+    - family-names: Zhu
+      given-names: Yifan
+    - family-names: Katt
+      given-names: Sammie
+    - family-names: Kaski
+      given-names: Samuel
+  collection-title: "Proceedings of the AAAI Conference on Artificial Intelligence"
+  year: 2026

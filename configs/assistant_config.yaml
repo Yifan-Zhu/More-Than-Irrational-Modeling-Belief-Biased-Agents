@@ -1,0 +1,66 @@
+defaults:
+  - _self_
+
+# All outputs land under runs/<run_id>/{models,logs,results}.
+run_id: default
+# Which run's trained user policies + MDP oracle to LOAD (defaults to this run). Override to train/evaluate the assistant on policies from another run: policy_run_id=train_run.
+policy_run_id: "${run_id}"
+
+# Directory paths
+dirpath:
+  root: "${hydra:runtime.cwd}/runs/${run_id}/"
+  model: "${dirpath.root}models/"                                     # this run's checkpoints (assistant trains here)
+  policy_model: "${hydra:runtime.cwd}/runs/${policy_run_id}/models/"  # user policies + MDP load from here
+  log: "${dirpath.root}logs/"                                         # training logs (tensorboard, run.log)
+  result: "${dirpath.root}results/"                                   # evaluation outputs (figures + data)
+
+logging:
+  wandb_project: aaai26-crci-memory
+  wandb_enabled: true
+
+# Environment settings
+env:
+  name: MemoryDecayExp_9x9-v0
+  render_mode: rgb_array
+  extractor: default
+  mdp_name: MemoryDecayMDP_9x9-v0
+
+# AI Assistant configuration
+assistant:
+  policy_type: MultiInputPolicy
+  cost:  # Costs of different assistance types
+    no_assist: 0.0
+    action_hint: 0.3
+    memory_hint: 0.1
+  optimal_policy:
+    mdp_file: ppo_mdp_best.zip  
+  episodes_per_agent: 3  # Number of episodes to run with the same agent before switching
+  entropy_threshold: 0  # Threshold for agent's action hint acceptance
+
+# CRCI (NPF) configuration
+crci:
+  M: 20  
+
+agent:
+  temperature: 1.0
+  deterministic: False
+  memory_model: 'B'                       # belief WRAPPER applied to the (true + simulated) user
+  policy_model: "${agent.memory_model}"   # which model<A|B>/ user policies to LOAD (default: match the wrapper)
+
+# Training configuration
+training:
+  timesteps_per_iteration: 100000
+  n_iterations: 50
+  eval_freq: 1000
+  n_eval_episodes: 3
+  num_best_models: 5
+
+# Utility settings
+utils:
+  seed: 42
+  device: cuda 
+
+# Evaluation settings
+evaluation:
+  mode: evaluate
+  data_path: null

@@ -1,0 +1,11 @@
+gymnasium
+minigrid
+torch
+stable-baselines3
+wandb
+numpy
+matplotlib
+seaborn
+pandas
+tqdm
+hydra-core

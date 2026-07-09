@@ -1,0 +1,60 @@
+project:
+  name: crci-memory
+  author: Yifan Zhu
+  description: Codebase for AAAI26 publication 'More Than Irrational: Modeling Belief-Biased Agents': modeling user behaviour under memory decay for computational rationality constraint inference and AI assistant design.
+
+# Names this run. All outputs land under runs/<run_id>/{models,logs,results}. Reuse the same run_id across stages (train -> inference -> assistant) so they share one run directory.
+run_id: default
+# Which run's trained user policies + MDP oracle to LOAD (defaults to this run). Override to reuse policies from another run, e.g. policy_run_id=train_run, while new outputs still go under run_id.
+policy_run_id: "${run_id}"
+
+env:
+  name: 'MemoryDecayExp_9x9-v0'
+  render_mode: 'rgb_array'
+  use_belief: true
+  extractor: 'default'
+
+crci:
+  M: 50               
+  deterministic: False
+
+
+user_model:
+  memory:
+    model: 'A'          
+    decay_rate: 0.5     
+    thetas: null        # list of thetas to train in one run, e.g. [0.0,0.2,0.5]; null -> just decay_rate
+    decay_model: 'rand_drop'
+    seed: 42
+    deterministic: False
+    temperature: 3.0
+  algorithm:
+    name: 'ppo'
+    ppo:
+      policy_type: 'MultiInputPolicy'
+    dqn: # Can also try other training algorithms like DQN and RPPO, though the training is found to be unstable during investigation.
+      policy_type: 'MultiInputPolicy'
+    rppo:
+      policy_type: 'MultiInputLstmPolicy'
+
+training:
+  n_eval_episodes: 100
+  device: 'cuda'
+  timesteps: 800000
+  eval_freq: 10000
+  num_best_models: 5    # keep the top-N eval checkpoints per policy (evaluate_and_select re-picks)
+
+utils:
+  seed: 42
+  device: 'cuda'
+
+logging:
+  wandb_project: aaai26-crci-memory
+  wandb_enabled: true
+
+dirpath:
+  root: "${hydra:runtime.cwd}/runs/${run_id}/"
+  model: "${dirpath.root}models/"                                     # this run's checkpoints
+  policy_model: "${hydra:runtime.cwd}/runs/${policy_run_id}/models/"  # user policies + MDP load from here
+  log: "${dirpath.root}logs/"                                         # training logs (tensorboard, run.log)
+  result: "${dirpath.root}results/"                                   # evaluation outputs (figures + data)
